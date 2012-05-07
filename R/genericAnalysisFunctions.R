@@ -87,7 +87,7 @@
     lastChar <- substr(folderName, len.name, len.name)
     # Remove last char
     if (lastChar == "/" | lastChar=="\\"){folderName <- substr(folderName, 1, len.name-1)}
-    return(folderName)
+    return(path.expand(folderName))
 }
 
 .readFast <- function(file.name)
@@ -273,7 +273,9 @@
       labs(x = "",y="") +
       scale_x_discrete(expand = c(0, 0)) +
       scale_y_discrete(expand = c(0, 0)) +  
-      facet_grid( Same ~ ProbType, scales = "free")
+#       facet_grid( Same ~ ProbType, scales = "free")
+      facet_wrap( ~ ProbType, ncol = 2, scales = "free")
+
     )
     ## Save
     print(p)
