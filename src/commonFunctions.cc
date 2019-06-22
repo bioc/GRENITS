@@ -20,7 +20,7 @@ using namespace arma;
 // LAPACK function
 //extern "C" void arma_fortran(dtrtrs)(char *uplo, char *trans, char *diag, blas_int *n, blas_int *nrhs, double *a, 
 //				     blas_int *lda, double *b, blas_int * ldb, blas_int *info);  
-void solve_Tri_LAPACK(mat& R, colvec& v);
+// void solve_Tri_LAPACK(mat& R, colvec& v);
 void estimateRemainingTime(double& percent_done, double& time_left, int length, 
 			   int iteration_k, clock_t& start);
 umat is_NaN_mat(mat &A);
@@ -118,30 +118,28 @@ void MHlogMVPDF(double& logMVPDF, const mat& Sigma, const rowvec& Mu)
   colvec         vecDotMat, MuAux;
   double   proDiagonal, modulusMu;
   //.. Use choleski to speed up
-  R         = chol(Sigma);
+  R         = chol(Sigma, "lower");
   
   MuAux = trans(Mu);
-
-  solve_Tri_LAPACK(R, MuAux);
-
+  
+  MuAux = solve(trimatl(R), MuAux);
   prod_Diag(proDiagonal, R);
   modulus_ColVec(modulusMu, MuAux);
   logMVPDF  = -2*log(proDiagonal) + modulusMu;
-
 }
 
-void solve_Tri_LAPACK(mat& R, colvec& v)
-{
-  blas_int           m = R.n_rows;
-  char            upper_tri = 'U';
-  char                   nu = 'N';
-  char                  trs = 'T';
-  blas_int               info_out;
-  blas_int                 nrhs=1;
-
-  arma_fortran(arma_dtrtrs)( &upper_tri, &trs, &nu, &m, &nrhs, R.memptr(), 
-                                     &m, v.memptr(), &m, &info_out);      
-}
+// void solve_Tri_LAPACK(mat& R, colvec& v)
+// {
+//   blas_int           m = R.n_rows;
+//   char            upper_tri = 'U';
+//   char                   nu = 'N';
+//   char                  trs = 'T';
+//   blas_int               info_out;
+//   blas_int                 nrhs=1;
+// 
+//   arma_fortran(arma_dtrtrs)( &upper_tri, &trs, &nu, &m, &nrhs, R.memptr(), 
+//                                      &m, v.memptr(), &m, &info_out);      
+// }
 
 void RandomUniformVec(double* array_rand, double min_val, double max_val, int total_elems)
 {
